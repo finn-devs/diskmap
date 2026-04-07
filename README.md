@@ -113,4 +113,8 @@ The Rust core (`dm-core`, `dm-scan`) is shared between platforms. The GTK app us
 
 ## License
 
-MIT
+Copyright (c) 2026 Finn Devs LLC. All rights reserved.
+
+This software is proprietary. No permission is granted to copy, modify, distribute, or use commercially without explicit written consent from Finn Devs LLC.
+
+For licensing inquiries visit [finndevs.com](https://finndevs.com).

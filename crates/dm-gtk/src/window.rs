@@ -219,6 +219,43 @@ pub fn build_window(app: &adw::Application) -> adw::ApplicationWindow {
     main_box.append(&header);
     main_box.append(&view_stack);
 
+    // --- Branded footer ---
+    let footer = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+    footer.set_halign(gtk4::Align::Center);
+    footer.set_margin_top(2);
+    footer.set_margin_bottom(4);
+
+    let footer_label = gtk4::Label::new(Some("\u{00a9} 2026 Finn Devs LLC"));
+    footer_label.add_css_class("caption");
+    footer_label.add_css_class("dim-label");
+    footer_label.set_opacity(0.5);
+    footer.append(&footer_label);
+
+    let footer_sep = gtk4::Label::new(Some("\u{00b7}"));
+    footer_sep.add_css_class("caption");
+    footer_sep.add_css_class("dim-label");
+    footer_sep.set_opacity(0.3);
+    footer.append(&footer_sep);
+
+    let footer_link = gtk4::LinkButton::with_label("https://finndevs.com", "finndevs.com");
+    footer_link.add_css_class("caption");
+    footer_link.set_opacity(0.5);
+    footer.append(&footer_link);
+
+    let footer_sep2 = gtk4::Label::new(Some("\u{00b7}"));
+    footer_sep2.add_css_class("caption");
+    footer_sep2.add_css_class("dim-label");
+    footer_sep2.set_opacity(0.3);
+    footer.append(&footer_sep2);
+
+    let footer_rights = gtk4::Label::new(Some("All Rights Reserved"));
+    footer_rights.add_css_class("caption");
+    footer_rights.add_css_class("dim-label");
+    footer_rights.set_opacity(0.4);
+    footer.append(&footer_rights);
+
+    main_box.append(&footer);
+
     let window = adw::ApplicationWindow::builder()
         .application(app)
         .title("DiskMap")
@@ -755,37 +792,166 @@ fn update_breadcrumb(breadcrumb_bar: &gtk4::Box, root_name: &str) {
     breadcrumb_bar.append(&label);
 }
 
-/// Populate the dir tree sidebar with filesystem root locations.
+/// Populate the dir tree sidebar like a native file browser:
+/// - Mounted volumes/drives
+/// - XDG user directories (from xdg-user-dirs)
+/// - Actual home directory contents
 fn populate_dir_tree_roots(list: &gtk4::ListBox) {
-    // Clear existing
     while let Some(child) = list.first_child() {
         list.remove(&child);
     }
 
     let home = std::env::var("HOME").unwrap_or_else(|_| "/home".into());
 
-    // Root entries: system + common user dirs
-    let entries: Vec<(&str, &str, String)> = vec![
-        ("Root", "drive-harddisk-symbolic", "/".into()),
-        ("Home", "user-home-symbolic", home.clone()),
-        ("Documents", "folder-documents-symbolic", format!("{home}/Documents")),
-        ("Downloads", "folder-download-symbolic", format!("{home}/Downloads")),
-        ("Desktop", "user-desktop-symbolic", format!("{home}/Desktop")),
-        ("Pictures", "folder-pictures-symbolic", format!("{home}/Pictures")),
-        ("Music", "folder-music-symbolic", format!("{home}/Music")),
-        ("Videos", "folder-videos-symbolic", format!("{home}/Videos")),
-        ("Projects", "folder-symbolic", format!("{home}/Projects")),
-        ("/tmp", "folder-temp-symbolic", "/tmp".into()),
-        ("/var", "folder-symbolic", "/var".into()),
-        ("/usr", "folder-symbolic", "/usr".into()),
-    ];
+    // --- Section: Drives / Volumes ---
+    add_section_header(list, "Volumes");
+    let row = build_dir_tree_row("Filesystem Root", "drive-harddisk-symbolic", "/");
+    list.append(&row);
 
-    for (name, icon, path) in &entries {
-        if std::path::Path::new(path).exists() {
-            let row = build_dir_tree_row(name, icon, path);
+    // Detect mounted volumes (real block devices, not virtual)
+    if let Ok(mounts) = std::fs::read_to_string("/proc/mounts") {
+        let mut seen = std::collections::HashSet::new();
+        for line in mounts.lines() {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() < 3 { continue; }
+            let mount_point = parts[1];
+            let fs_type = parts[2];
+
+            // Skip virtual filesystems and root (already shown)
+            if mount_point == "/" { continue; }
+            if matches!(fs_type, "sysfs" | "proc" | "tmpfs" | "devtmpfs" | "devpts"
+                | "cgroup" | "cgroup2" | "pstore" | "securityfs" | "debugfs"
+                | "hugetlbfs" | "mqueue" | "fusectl" | "configfs" | "binfmt_misc"
+                | "tracefs" | "overlay" | "nsfs" | "squashfs" | "autofs" | "bpf"
+                | "efivarfs" | "fuse.portal" | "fuse.gvfsd-fuse") {
+                continue;
+            }
+
+            // Skip snap mounts
+            if mount_point.starts_with("/snap/") { continue; }
+            // Skip system mounts
+            if mount_point.starts_with("/sys/") || mount_point.starts_with("/run/") { continue; }
+
+            if seen.insert(mount_point.to_string()) {
+                let name = std::path::Path::new(mount_point)
+                    .file_name()
+                    .map(|n| n.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| mount_point.to_string());
+                let icon = if mount_point.starts_with("/media/") || mount_point.starts_with("/mnt/") {
+                    "drive-removable-media-symbolic"
+                } else {
+                    "drive-harddisk-symbolic"
+                };
+                let row = build_dir_tree_row(&name, icon, mount_point);
+                list.append(&row);
+            }
+        }
+    }
+
+    // --- Section: Bookmarks (XDG user dirs) ---
+    add_section_header(list, "Bookmarks");
+
+    // Read XDG user dirs config
+    let xdg_config = format!("{home}/.config/user-dirs.dirs");
+    let mut xdg_dirs: Vec<(String, &str, String)> = Vec::new();
+
+    if let Ok(contents) = std::fs::read_to_string(&xdg_config) {
+        for line in contents.lines() {
+            let line = line.trim();
+            if line.starts_with('#') || !line.contains('=') { continue; }
+            let mut parts = line.splitn(2, '=');
+            let key = parts.next().unwrap_or("");
+            let value = parts.next().unwrap_or("").trim_matches('"').replace("$HOME", &home);
+
+            if value == home || !std::path::Path::new(&value).exists() { continue; }
+
+            let (name, icon) = match key {
+                "XDG_DESKTOP_DIR" => ("Desktop", "user-desktop-symbolic"),
+                "XDG_DOCUMENTS_DIR" => ("Documents", "folder-documents-symbolic"),
+                "XDG_DOWNLOAD_DIR" => ("Downloads", "folder-download-symbolic"),
+                "XDG_MUSIC_DIR" => ("Music", "folder-music-symbolic"),
+                "XDG_PICTURES_DIR" => ("Pictures", "folder-pictures-symbolic"),
+                "XDG_VIDEOS_DIR" => ("Videos", "folder-videos-symbolic"),
+                "XDG_TEMPLATES_DIR" => ("Templates", "folder-templates-symbolic"),
+                "XDG_PUBLICSHARE_DIR" => ("Public", "folder-publicshare-symbolic"),
+                _ => continue,
+            };
+            xdg_dirs.push((name.to_string(), icon, value));
+        }
+    }
+
+    // Fallback if no XDG config
+    if xdg_dirs.is_empty() {
+        let defaults = [
+            ("Documents", "folder-documents-symbolic"),
+            ("Downloads", "folder-download-symbolic"),
+            ("Desktop", "user-desktop-symbolic"),
+            ("Pictures", "folder-pictures-symbolic"),
+            ("Music", "folder-music-symbolic"),
+            ("Videos", "folder-videos-symbolic"),
+        ];
+        for (name, icon) in defaults {
+            let path = format!("{home}/{name}");
+            if std::path::Path::new(&path).exists() {
+                xdg_dirs.push((name.to_string(), icon, path));
+            }
+        }
+    }
+
+    // Home first
+    let row = build_dir_tree_row("Home", "user-home-symbolic", &home);
+    list.append(&row);
+
+    for (name, icon, path) in &xdg_dirs {
+        let row = build_dir_tree_row(name, icon, path);
+        list.append(&row);
+    }
+
+    // --- Section: Home directories (everything else in ~) ---
+    add_section_header(list, "Home");
+
+    if let Ok(entries) = std::fs::read_dir(&home) {
+        let mut dirs: Vec<(String, String)> = Vec::new();
+        let xdg_paths: std::collections::HashSet<&str> = xdg_dirs.iter()
+            .map(|(_, _, p)| p.as_str())
+            .collect();
+
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if !path.is_dir() { continue; }
+
+            let name = entry.file_name().to_string_lossy().into_owned();
+            // Skip hidden dirs and already-shown XDG dirs
+            if name.starts_with('.') { continue; }
+            let path_str = path.to_string_lossy().into_owned();
+            if xdg_paths.contains(path_str.as_str()) { continue; }
+
+            dirs.push((name, path_str));
+        }
+
+        dirs.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()));
+
+        for (name, path) in &dirs {
+            let row = build_dir_tree_row(name, "folder-symbolic", path);
             list.append(&row);
         }
     }
+}
+
+/// Add a non-clickable section header to the list.
+fn add_section_header(list: &gtk4::ListBox, title: &str) {
+    let label = gtk4::Label::new(Some(title));
+    label.set_halign(gtk4::Align::Start);
+    label.set_margin_start(12);
+    label.set_margin_top(12);
+    label.set_margin_bottom(4);
+    label.add_css_class("caption");
+    label.add_css_class("dim-label");
+    let row = gtk4::ListBoxRow::new();
+    row.set_child(Some(&label));
+    row.set_selectable(false);
+    row.set_activatable(false);
+    list.append(&row);
 }
 
 /// Populate the dir tree with quick-access roots + current directory contents.
