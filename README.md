@@ -17,7 +17,11 @@ Scan any directory and see where your space is going as an interactive donut pie
 
 ## Screenshots
 
-*Coming soon*
+### Welcome Screen
+![Welcome screen with quick-scan location cards](screenshots/welcome.png)
+
+### Disk Scan
+![Pie chart visualization of root filesystem](screenshots/scan.png)
 
 ## Building
 
