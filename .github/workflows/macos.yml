@@ -1,0 +1,71 @@
+name: macOS (SwiftUI)
+# Disabled — enable when ready to build on macOS
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
+on: workflow_dispatch
+
+defaults:
+  run:
+    working-directory: diskmap
+
+jobs:
+  test-core:
+    name: Test core crates (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            diskmap/target
+          key: ${{ runner.os }}-cargo-core-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Test dm-core
+        run: cargo test -p dm-core
+
+      - name: Test dm-scan
+        run: cargo test -p dm-scan
+
+  build:
+    name: Build universal library + SwiftUI app
+    runs-on: macos-latest
+    needs: test-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            diskmap/target
+          key: ${{ runner.os }}-cargo-ffi-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build universal Rust library
+        run: bash scripts/build-rust-universal.sh
+
+      - name: Copy header to Swift package
+        run: cp crates/dm-ffi/dm_ffi.h macos/RustCore/Sources/CRustCore/include/
+
+      - name: Verify universal binary
+        run: lipo -info target/universal/release/libdm_ffi.a
+
+      - name: Upload universal library + header
+        uses: actions/upload-artifact@v4
+        with:
+          name: libdm-ffi-universal
+          path: |
+            diskmap/target/universal/release/libdm_ffi.a
+            diskmap/crates/dm-ffi/dm_ffi.h

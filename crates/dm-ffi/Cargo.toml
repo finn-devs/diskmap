@@ -1,0 +1,17 @@
+[package]
+name = "dm-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+build = "build.rs"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+dm-core = { workspace = true }
+dm-scan = { workspace = true }
+serde_json = { workspace = true }
+
+[build-dependencies]
+cbindgen = "0.28"

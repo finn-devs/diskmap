@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <circle cx="64" cy="64" r="58" fill="#1a1a2e" stroke="#6C9FFF" stroke-width="3"/>
+  <path d="M64 10 A54 54 0 0 1 118 64 L64 64 Z" fill="#e74c3c"/>
+  <path d="M118 64 A54 54 0 0 1 64 118 L64 64 Z" fill="#f39c12"/>
+  <path d="M64 118 A54 54 0 0 1 10 64 L64 64 Z" fill="#27ae60"/>
+  <path d="M10 64 A54 54 0 0 1 64 10 L64 64 Z" fill="#3498db"/>
+  <circle cx="64" cy="64" r="22" fill="#1a1a2e"/>
+  <text x="64" y="70" text-anchor="middle" fill="white" font-size="16" font-family="sans-serif" font-weight="bold">DM</text>
+</svg>

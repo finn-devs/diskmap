@@ -1,0 +1,32 @@
+[package]
+name = "dm-gtk"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "DiskMap — visual disk space analyzer"
+
+[[bin]]
+name = "diskmap"
+path = "src/main.rs"
+
+[dependencies]
+dm-core = { workspace = true }
+dm-scan = { workspace = true }
+serde_json = { workspace = true }
+gtk4 = "0.9"
+libadwaita = { version = "0.7", features = ["v1_4"] }
+libc = "0.2"
+
+[package.metadata.deb]
+name = "diskmap"
+maintainer = "DiskMap contributors"
+copyright = "2026, DiskMap contributors"
+depends = "libgtk-4-1 (>= 4.12), libadwaita-1-0 (>= 1.4)"
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/diskmap", "usr/bin/", "755"],
+    ["../../packaging/diskmap.desktop", "usr/share/applications/", "644"],
+    ["../../packaging/diskmap.svg", "usr/share/icons/hicolor/scalable/apps/", "644"],
+    ["../../packaging/diskmap.metainfo.xml", "usr/share/metainfo/", "644"],
+]

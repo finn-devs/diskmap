@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=DiskMap
+Comment=Visual disk space analyzer
+Exec=diskmap
+Icon=diskmap
+Terminal=false
+Type=Application
+Categories=System;Utility;FileTools;
+Keywords=disk;space;usage;storage;analyzer;
