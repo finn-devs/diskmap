@@ -5,9 +5,6 @@ on:
   pull_request:
     branches: [main]
 
-defaults:
-  run:
-    working-directory: diskmap
 
 jobs:
   test:
@@ -23,7 +20,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            diskmap/target
+            target
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install GTK4 + libadwaita dev dependencies
@@ -53,7 +50,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            diskmap/target
+            target
           key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build release binary
@@ -66,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: diskmap-linux-x86_64
-          path: diskmap/target/release/diskmap
+          path: target/release/diskmap
 
   build-deb:
     name: Build .deb package
@@ -90,7 +87,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            diskmap/target
+            target
           key: ${{ runner.os }}-cargo-deb-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build .deb
@@ -118,7 +115,7 @@ jobs:
           sudo flatpak install -y flathub org.freedesktop.Sdk.Extension.rust-stable//24.08
 
       - name: Build Flatpak
-        working-directory: diskmap/packaging
+        working-directory: ./packaging
         run: |
           flatpak-builder --force-clean --repo=repo builddir com.diskmap.app.yml
           flatpak build-bundle repo diskmap.flatpak com.diskmap.app
