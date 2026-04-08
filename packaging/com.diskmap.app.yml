@@ -3,7 +3,7 @@ runtime: org.gnome.Platform
 runtime-version: '46'
 sdk: org.gnome.Sdk
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.rust-stable
+  - org.freedesktop.Sdk.Extension.rust-stable//24.08
 command: diskmap
 
 finish-args:
