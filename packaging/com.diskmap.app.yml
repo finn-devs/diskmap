@@ -1,9 +1,9 @@
 app-id: com.diskmap.app
 runtime: org.gnome.Platform
-runtime-version: '46'
+runtime-version: '48'
 sdk: org.gnome.Sdk
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.rust-stable//24.08
+  - org.freedesktop.Sdk.Extension.rust-stable
 command: diskmap
 
 finish-args:
@@ -21,6 +21,7 @@ modules:
   - name: diskmap
     buildsystem: simple
     build-commands:
+      - mkdir -p .cargo && echo -e '[source.crates-io]\nreplace-with = "vendored-sources"\n[source.vendored-sources]\ndirectory = "vendor"' > .cargo/config.toml
       - cargo build --release -p dm-gtk
       - install -Dm755 target/release/diskmap /app/bin/diskmap
       - install -Dm644 packaging/diskmap.desktop /app/share/applications/diskmap.desktop
