@@ -117,4 +117,6 @@ Copyright (c) 2026 Finn Devs LLC. All rights reserved.
 
 This software is proprietary. No permission is granted to copy, modify, distribute, or use commercially without explicit written consent from Finn Devs LLC.
 
+Flathub (flathub.org) and its infrastructure partners are granted permission to build, host, and distribute the compiled application through the Flathub repository.
+
 For licensing inquiries visit [finndevs.com](https://finndevs.com).
