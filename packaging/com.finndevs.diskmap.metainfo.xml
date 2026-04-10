@@ -44,6 +44,11 @@
   </screenshots>
 
   <releases>
+    <release version="1.0.0" date="2026-04-10">
+      <description>
+        <p>First stable release. Prepared for Flathub distribution.</p>
+      </description>
+    </release>
     <release version="0.1.1" date="2026-04-07">
       <description>
         <p>Fix Flatpak build with GNOME 48 runtime and vendored cargo dependencies.</p>
