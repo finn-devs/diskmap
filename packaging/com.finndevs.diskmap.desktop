@@ -7,3 +7,4 @@ Terminal=false
 Type=Application
 Categories=System;Utility;FileTools;
 Keywords=disk;space;usage;storage;analyzer;
+StartupWMClass=diskmap

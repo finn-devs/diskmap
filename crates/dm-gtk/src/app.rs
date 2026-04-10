@@ -13,6 +13,10 @@ pub fn run() {
         .application_id(APP_ID)
         .build();
 
+    app.connect_startup(|_| {
+        gtk4::Window::set_default_icon_name("com.finndevs.diskmap");
+    });
+
     app.connect_activate(|app| {
         show_splash(app);
     });
