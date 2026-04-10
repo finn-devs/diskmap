@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.finndevs.diskmap</id>
+  <name>DiskMap</name>
+  <summary>Visual disk space analyzer</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary=https://finndevs.com</project_license>
+
+  <developer id="com.finndevs">
+    <name>Finn Devs LLC</name>
+  </developer>
+
+  <description>
+    <p>
+      DiskMap helps you find out where your disk space is going. It scans
+      directories and shows the results as an interactive pie chart, with
+      the largest items highlighted in red.
+    </p>
+    <p>
+      Double-click directories to drill down. Right-click items to open
+      in your file manager, copy the path, or move to trash.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">com.finndevs.diskmap.desktop</launchable>
+
+  <url type="homepage">https://github.com/finn-devs/diskmap</url>
+  <url type="bugtracker">https://github.com/finn-devs/diskmap/issues</url>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#3498db</color>
+    <color type="primary" scheme_preference="dark">#2980b9</color>
+  </branding>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Pie chart visualization of disk space usage</caption>
+      <image>https://raw.githubusercontent.com/finn-devs/diskmap/main/screenshots/scan.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Welcome screen with quick-scan location cards</caption>
+      <image>https://raw.githubusercontent.com/finn-devs/diskmap/main/screenshots/welcome.png</image>
+    </screenshot>
+  </screenshots>
+
+  <releases>
+    <release version="0.1.1" date="2026-04-07">
+      <description>
+        <p>Fix Flatpak build with GNOME 48 runtime and vendored cargo dependencies.</p>
+      </description>
+    </release>
+    <release version="0.1.0" date="2026-04-06">
+      <description>
+        <p>Initial release with pie chart visualization, drill-down navigation, and right-click context menu.</p>
+      </description>
+    </release>
+  </releases>
+
+  <content_rating type="oars-1.1" />
+
+  <requires>
+    <display_length compare="ge">800</display_length>
+  </requires>
+  <recommends>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </recommends>
+</component>

@@ -2,7 +2,7 @@
 Name=DiskMap
 Comment=Visual disk space analyzer
 Exec=diskmap
-Icon=diskmap
+Icon=com.finndevs.diskmap
 Terminal=false
 Type=Application
 Categories=System;Utility;FileTools;

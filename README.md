@@ -85,8 +85,8 @@ Download the `.flatpak` from [Releases](../../releases) or build it:
 
 ```bash
 cd packaging
-flatpak-builder --force-clean --repo=repo builddir com.diskmap.app.yml
-flatpak build-bundle repo diskmap.flatpak com.diskmap.app
+flatpak-builder --force-clean --repo=repo builddir com.finndevs.diskmap.yml
+flatpak build-bundle repo diskmap.flatpak com.finndevs.diskmap
 flatpak install diskmap.flatpak
 ```
 

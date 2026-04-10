@@ -26,7 +26,7 @@ section = "utils"
 priority = "optional"
 assets = [
     ["target/release/diskmap", "usr/bin/", "755"],
-    ["../../packaging/diskmap.desktop", "usr/share/applications/", "644"],
-    ["../../packaging/diskmap.svg", "usr/share/icons/hicolor/scalable/apps/", "644"],
-    ["../../packaging/diskmap.metainfo.xml", "usr/share/metainfo/", "644"],
+    ["../../packaging/com.finndevs.diskmap.desktop", "usr/share/applications/", "644"],
+    ["../../packaging/com.finndevs.diskmap.svg", "usr/share/icons/hicolor/scalable/apps/", "644"],
+    ["../../packaging/com.finndevs.diskmap.metainfo.xml", "usr/share/metainfo/", "644"],
 ]

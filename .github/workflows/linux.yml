@@ -123,8 +123,8 @@ jobs:
       - name: Build Flatpak
         working-directory: ./packaging
         run: |
-          flatpak-builder --force-clean --repo=repo builddir com.diskmap.app.yml
-          flatpak build-bundle repo diskmap.flatpak com.diskmap.app
+          flatpak-builder --force-clean --repo=repo builddir com.finndevs.diskmap.yml
+          flatpak build-bundle repo diskmap.flatpak com.finndevs.diskmap
 
       - name: Upload Flatpak
         uses: actions/upload-artifact@v4
